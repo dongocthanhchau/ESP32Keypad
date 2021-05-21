@@ -2,13 +2,15 @@
 LiquidCrystal_I2C lcd(0x27,16,2); 
 void lcdInit(){
   lcd.begin();
-  vTaskDelay(1/portTICK_PERIOD_MS);            
+  //vTaskDelay(1/portTICK_PERIOD_MS);            
   lcd.backlight();
 }
-
+void lcdClear(){
+  lcd.clear();
+}
 bool charDisp(char ch){
   lcd.print(ch);
-  vTaskDelay(0.1/portTICK_PERIOD_MS);
+  //vTaskDelay(0.1/portTICK_PERIOD_MS);
 }
 bool dataDisp(String dat){
   char *_dat = &dat[0];
@@ -21,10 +23,10 @@ bool dataDispLine(int line,String dat){
 bool dataDispLine(int line,char *dat){
   int _counter =0;
   lcd.setCursor(0,line);
-  //lcd.print("                ");
+  lcd.print("                ");
   //vTaskDelay(2/portTICK_PERIOD_MS); 
-  //lcd.setCursor(0,line);
-  vTaskDelay(1/portTICK_PERIOD_MS); 
+  lcd.setCursor(0,line);
+  //vTaskDelay(1/portTICK_PERIOD_MS); 
   while(*dat){
     lcd.print(*dat);
     vTaskDelay(1/portTICK_PERIOD_MS);
@@ -42,19 +44,19 @@ bool dataDispLine(int line,char *dat){
 bool dataDisp(char *dat){
   lcdInit();
   lcd.clear();
-  vTaskDelay(1/portTICK_PERIOD_MS); 
+  //vTaskDelay(1/portTICK_PERIOD_MS); 
   int _counter =0;
   lcd.setCursor(0,0);
-  vTaskDelay(1/portTICK_PERIOD_MS); 
+  //vTaskDelay(0.1/portTICK_PERIOD_MS); 
   while(*dat){
     if (*dat=='\n') {
       lcd.setCursor(0,1);
-      vTaskDelay(1/portTICK_PERIOD_MS); 
+      //vTaskDelay(0.1/portTICK_PERIOD_MS); 
       _counter = 0;
     }
     else {
       lcd.print(*dat);
-      vTaskDelay(1/portTICK_PERIOD_MS); 
+      //vTaskDelay(0.1/portTICK_PERIOD_MS); 
     }
     dat++;
     _counter++;

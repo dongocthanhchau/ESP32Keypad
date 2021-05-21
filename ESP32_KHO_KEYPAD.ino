@@ -15,7 +15,7 @@ void dataTask(void *pvParameter);
 
 TaskHandle_t TaskHandle_1;
 TaskHandle_t lTask;
-TaskHandle_t TaskHandle_3;
+TaskHandle_t d2Task;
 TaskHandle_t dTask;
 
 void setup() {
@@ -56,7 +56,9 @@ void wifiTask(void *pvParameter)
 //        vTaskDelay(50/portTICK_PERIOD_MS);
 //      }while(!res.indexOf("success"));
       
-      vTaskDelay(10000/portTICK_PERIOD_MS);
+      vTaskDelay(60000/portTICK_PERIOD_MS);
+      //xTaskCreate(lcdTask, "Task2", 4096, NULL, 2, &lTask);
+      xTaskCreate(dataTask,"DataSendTask",4096,(void *) 1, 9, &d2Task);
       
   }
 }
@@ -71,12 +73,25 @@ void lcdTask(void *pvParameter){
   
   for(;;){
     lcdRun=true;
-    if (input.length()>0){
+    if (input.length()>=0){
+      
       if (input.length()==1){
-          
+          //lcdClear();
+          //lcdInit();
+//          dataDispLine(1,input);
           dataDisp("INPUT DATA:     \n                ");
-      }
+          dataDispLine(1,input);
+          //dataDispLine(0,"INPUT DATA");
+          //lcdInit();
+          //dataDispLine(0,"INPUT DATA");
+          //dataDispLine(1,input);
+          
+          
+          
+          
+      } else
       dataDispLine(1,input);
+      
       //heap_caps_dump_all();
       //Serial.println(input);
       }
@@ -103,27 +118,30 @@ void keypadTask(void *pvParameter){
       
       //Serial.println(ckey);
       if (ckey =='#') {
-        xTaskCreate(dataTask,"DataSendTask",4096,(void *) 0, 9, &dTask);
+        xTaskCreate(dataTask,"DataSendTask",4096,(void *) 0, 3, &dTask);
       } 
-      if (ckey =='1' || ckey =='A' || ckey =='B'|| ckey =='C'){
-      
-        }
-      if (ckey =='D'){
+      else if (ckey =='A' || ckey =='B'|| ckey =='C'){
+          if (ckey=='A') lcdInit();
+        
+         }
+      else if (ckey =='D'){
         ESP.restart(); 
       }else{
 
-        if (ckey >='0' && ckey<='9') input+=String(ckey);
-        if (ckey =='*') input[input.length()-1] ='\0';
-        
+        if (ckey >='0' && ckey<='9') {
+          input+=String(ckey);
+        }
+        if (ckey =='*') 
+          if (input.length()>0)input.remove(input.length()-1);
+          
         if (!lcdRun) {
-        xTaskCreate(lcdTask, "Task2", 4096, NULL, 1, &lTask);
+        xTaskCreate(lcdTask, "Task2", 4096, NULL, 5, &lTask);
         }
       }
       //if (input[15]=='\0') input=(String)"";
     }
-    vTaskDelay(40/portTICK_PERIOD_MS);  
-  }
-}
+    vTaskDelay(100/portTICK_PERIOD_MS);  
+  }}
 void dataTask(void *pvParameter){
   //declare here
   int  CMD;
@@ -145,18 +163,18 @@ void dataTask(void *pvParameter){
     }
     if (_res.indexOf("success"))
       if (_res.indexOf("control")){
-        //Serial.println(res);
+        Serial.println(_res);
         res = msgDe(_res,"ESP_1");
 //        Serial.println(_res);
 //        Serial.println(res);
-        //dataDisp(res);
+       //dataDisp(res);
         //delay(1000);
         xTaskCreate(lcdTask, "Task2", 4096, NULL, 1, &lTask);
 //      if (!dataDisp(res))
 //        dataDisp("Data Error");
 //      //Serial.println(res);
       }
-    
+    vTaskDelete(d2Task);
     vTaskDelete(dTask);
   }
 }

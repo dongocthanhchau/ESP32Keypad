@@ -6,6 +6,7 @@
  
 
 void lcdInit();
+void lcdClear();
 bool dataDisp(char *dat);
 bool dataDisp(String dat);
 bool dataDispLine(int line,String dat);
